@@ -22,13 +22,18 @@ type PasteData struct {
 	Paste `json:"paste"`
 }
 
-var (
-	silent bool
-)
+type Config struct {
+	Silent bool
+}
 
 func main() {
+	// load config from env
+	conf := Config{}
+	loadEnv(&conf)
+
 	// parse flags
-	flag.BoolVar(&silent, "s", false, "silent mode")
+	flag.BoolVar(&conf.Silent, "s", false, "silent mode - suppress logs unless request fails")
+	flag.Parse()
 
 	var content string
 	fi, _ := os.Stdin.Stat()
@@ -44,13 +49,13 @@ func main() {
 	var output string
 	id, err := saveLog(content)
 	if err != nil {
-		silent = false
+		conf.Silent = false
 		output = fmt.Sprintf("Failed to save log: %s", err.Error())
 	} else {
 		output = fmt.Sprintf("Log saved successfully: http://localhost:9999/api/v1/pastes/%d.json", id)
 	}
 
-	if !silent {
+	if !conf.Silent {
 		log.Println(content)
 	}
 

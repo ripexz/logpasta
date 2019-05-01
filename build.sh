@@ -1,1 +1,1 @@
-go build ./logpasta.go
+go build -o logpasta .
