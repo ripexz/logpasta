@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -70,15 +71,25 @@ func saveLog(content string) (int64, error) {
 		return 0, err
 	}
 
+	var buf bytes.Buffer
+	zipper := gzip.NewWriter(&buf)
+	if _, err = zipper.Write(payload); err != nil {
+		return 0, err
+	}
+	if err = zipper.Close(); err != nil {
+		return 0, err
+	}
+
 	req, err := http.NewRequest(
 		http.MethodPost,
 		"http://localhost:9999/api/v1/pastes.json",
-		bytes.NewReader(payload),
+		bytes.NewReader(buf.Bytes()),
 	)
 	if err != nil {
 		return 0, err
 	}
 	req.Header.Add("Content-Type", "application/json")
+	req.Header.Set("Content-Encoding", "gzip")
 
 	res, err := client.Do(req)
 	if err != nil {
