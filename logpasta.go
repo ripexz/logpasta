@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -21,6 +22,7 @@ func main() {
 	// load config from env then from flags
 	conf := Config{
 		BaseURL: baseURL,
+		Silent:  true,
 	}
 	loadEnv(&conf)
 	loadFlags(&conf)
@@ -40,7 +42,7 @@ func main() {
 		bytes, _ := ioutil.ReadAll(os.Stdin)
 		content = string(bytes)
 	} else {
-		content = flag.Arg(0)
+		content = strings.Join(flag.Args(), " ")
 	}
 
 	// make request
