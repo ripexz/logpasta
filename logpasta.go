@@ -13,27 +13,25 @@ import (
 	"time"
 )
 
-type Paste struct {
-	ID      int64  `json:"id,omitempty"`
-	Content string `json:"content,omitempty"`
-}
-
-type PasteData struct {
-	Paste `json:"paste"`
-}
-
-type Config struct {
-	Silent bool
-}
+var baseURL = "https://www.logpasta.com"
 
 func main() {
-	// load config from env
-	conf := Config{}
-	loadEnv(&conf)
+	log.SetPrefix("[logpasta] ")
 
-	// parse flags
-	flag.BoolVar(&conf.Silent, "s", false, "silent mode - suppress logs unless request fails")
-	flag.Parse()
+	// load config from env then from flags
+	conf := Config{
+		BaseURL: baseURL,
+	}
+	loadEnv(&conf)
+	loadFlags(&conf)
+
+	if conf.Debug {
+		log.Printf("Running with config:\n - BaseURL: %s\n - Silent: %v\n - Debug: %v",
+			conf.BaseURL,
+			conf.Silent,
+			conf.Debug,
+		)
+	}
 
 	var content string
 	fi, _ := os.Stdin.Stat()
@@ -47,12 +45,12 @@ func main() {
 
 	// make request
 	var output string
-	id, err := saveLog(content)
+	id, err := saveLog(&conf, content)
 	if err != nil {
 		conf.Silent = false
 		output = fmt.Sprintf("Failed to save log: %s", err.Error())
 	} else {
-		output = fmt.Sprintf("Log saved successfully: http://localhost:9999/api/v1/pastes/%d.json", id)
+		output = fmt.Sprintf("Log saved successfully:\n%s/api/v1/pastes/%d.json", conf.BaseURL, id)
 	}
 
 	if !conf.Silent {
@@ -62,7 +60,7 @@ func main() {
 	log.Println(output)
 }
 
-func saveLog(content string) (int64, error) {
+func saveLog(conf *Config, content string) (int64, error) {
 	client := http.Client{Timeout: time.Second}
 
 	data := &PasteData{
@@ -87,7 +85,7 @@ func saveLog(content string) (int64, error) {
 
 	req, err := http.NewRequest(
 		http.MethodPost,
-		"http://localhost:9999/api/v1/pastes.json",
+		fmt.Sprintf("%s/api/v1/pastes.json", conf.BaseURL),
 		bytes.NewReader(buf.Bytes()),
 	)
 	if err != nil {
