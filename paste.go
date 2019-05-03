@@ -1,7 +1,7 @@
 package main
 
 type Paste struct {
-	ID      int64  `json:"id,omitempty"`
+	UUID    string `json:"uuid,omitempty"`
 	Content string `json:"content,omitempty"`
 }
 
