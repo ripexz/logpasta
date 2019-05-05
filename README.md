@@ -2,6 +2,10 @@
 
 Simple CLI for [Logpasta](https://www.logpasta.com), just run `your_command | logpasta`.
 
+### Installation
+
+- Via Go: `go get github.com/ripexz/logpasta`
+
 ### Usage
 
 - `any_command | logpasta [flags]`
