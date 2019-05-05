@@ -14,7 +14,7 @@ type Config struct {
 }
 
 func loadEnv(config *Config) {
-	if u, e := url.Parse(os.Getenv("LOGPASTA_URL")); e == nil {
+	if u, e := url.Parse(os.Getenv("LOGPASTA_URL")); e == nil && len(u.String()) > 0 {
 		config.BaseURL = u.String()
 	}
 	if v, e := strconv.ParseBool(os.Getenv("LOGPASTA_SILENT")); e == nil {
