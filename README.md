@@ -1,6 +1,6 @@
-# logpastacli
+# logpasta
 
-Simple CLI for logpasta, just run `your_command | logpasta`.
+Simple CLI for [Logpasta](https://www.logpasta.com), just run `your_command | logpasta`.
 
 ### Usage
 
