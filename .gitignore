@@ -1,3 +1,6 @@
 .DS_Store
 vendor
 logpasta
+*-windows-*
+*-darwin-*
+*-linux-*

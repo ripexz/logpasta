@@ -14,9 +14,17 @@ import (
 	"time"
 )
 
-var baseURL = "https://www.logpasta.com"
+var (
+	baseURL = "https://www.logpasta.com"
+	version = "v0.1.0"
+)
 
 func main() {
+	if len(os.Args) > 1 && os.Args[1] == "version" {
+		log.Printf("Logpasta CLI %s", version)
+		return
+	}
+
 	log.SetPrefix("[logpasta] ")
 
 	// load config from env then from flags

@@ -11,6 +11,8 @@ Simple CLI for [Logpasta](https://www.logpasta.com), just run `your_command | lo
 - `any_command | logpasta [flags]`
 - `logpasta [flags] any string at all`
 
+To see the current CLI version, run `logpasta version`
+
 ### Config
 
 You can override the default configuration by passing flags:
