@@ -16,7 +16,7 @@ import (
 
 var (
 	baseURL = "https://www.logpasta.com"
-	version = "v0.1.0"
+	version = "v0.1.1"
 )
 
 func main() {
@@ -31,15 +31,17 @@ func main() {
 	conf := Config{
 		BaseURL: baseURL,
 		Silent:  true,
+		Timeout: 5,
 	}
 	loadEnv(&conf)
 	loadFlags(&conf)
 
 	if conf.Debug {
-		log.Printf("Running with config:\n - BaseURL: %s\n - Silent: %v\n - Debug: %v",
+		log.Printf("Running with config:\n - BaseURL: %s\n - Silent: %v\n - Debug: %v\n - Timeout: %d",
 			conf.BaseURL,
 			conf.Silent,
 			conf.Debug,
+			conf.Timeout,
 		)
 	}
 
@@ -71,7 +73,7 @@ func main() {
 }
 
 func saveLog(conf *Config, content string) (string, error) {
-	client := http.Client{Timeout: time.Second}
+	client := http.Client{Timeout: time.Second * time.Duration(conf.Timeout)}
 
 	data := &PasteData{
 		Paste: Paste{
