@@ -5,11 +5,13 @@ Simple CLI for [Logpasta](https://www.logpasta.com), just run `your_command | lo
 ### Installation
 
 - Via Go: `go get github.com/ripexz/logpasta`
+- [Download binary](https://github.com/ripexz/logpasta/releases) and put it in your `$PATH`
 
 ### Usage
 
 - `any_command | logpasta [flags]`
 - `logpasta [flags] any string at all`
+- `logpasta [flags] < your_file`
 
 To see the current CLI version, run `logpasta version`
 
