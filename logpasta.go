@@ -1,49 +1,22 @@
 package main
 
 import (
-	"bytes"
-	"compress/gzip"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
 	"strings"
-	"time"
+
+	"github.com/ripexz/logpasta/clipboard"
 )
 
-var (
-	baseURL = "https://www.logpasta.com"
-	version = "v0.1.1"
-)
+var version = "v0.2.0"
 
 func main() {
-	if len(os.Args) > 1 && os.Args[1] == "version" {
-		log.Printf("Logpasta CLI %s", version)
-		return
-	}
-
-	log.SetPrefix("[logpasta] ")
-
-	// load config from env then from flags
-	conf := Config{
-		BaseURL: baseURL,
-		Silent:  true,
-		Timeout: 5,
-	}
-	loadEnv(&conf)
-	loadFlags(&conf)
-
-	if conf.Debug {
-		log.Printf("Running with config:\n - BaseURL: %s\n - Silent: %v\n - Debug: %v\n - Timeout: %d",
-			conf.BaseURL,
-			conf.Silent,
-			conf.Debug,
-			conf.Timeout,
-		)
-	}
+	initLogger()
+	conf := loadConfig()
+	checkForCommands()
 
 	var content string
 	fi, _ := os.Stdin.Stat()
@@ -55,14 +28,24 @@ func main() {
 		content = strings.Join(flag.Args(), " ")
 	}
 
+	if content == "" {
+		log.Printf("No input detected, see 'logpasta help' for usage")
+		os.Exit(0)
+	}
+
 	// make request
 	var output string
-	uuid, err := saveLog(&conf, content)
+	pasteURL, err := saveLog(conf, content)
 	if err != nil {
 		conf.Silent = false
 		output = fmt.Sprintf("Failed to save log: %s", err.Error())
 	} else {
-		output = fmt.Sprintf("Log saved successfully:\n%s/paste/%s", conf.BaseURL, uuid)
+		output = fmt.Sprintf("Log saved successfully:\n%s", pasteURL)
+
+		err = clipboard.Copy(pasteURL)
+		if err != nil {
+			output += fmt.Sprintf("\nFailed to copy URL to clipboard: %s", err.Error())
+		}
 	}
 
 	if !conf.Silent {
@@ -72,55 +55,17 @@ func main() {
 	log.Println(output)
 }
 
-func saveLog(conf *Config, content string) (string, error) {
-	client := http.Client{Timeout: time.Second * time.Duration(conf.Timeout)}
-
-	data := &PasteData{
-		Paste: Paste{
-			Content: content,
-		},
+func checkForCommands() {
+	if len(os.Args) <= 1 {
+		return
 	}
 
-	payload, err := json.Marshal(data)
-	if err != nil {
-		return "", err
+	switch os.Args[1] {
+	case "version":
+		printVersion()
+		os.Exit(0)
+	case "help":
+		printUsage()
+		os.Exit(0)
 	}
-
-	var buf bytes.Buffer
-	zipper := gzip.NewWriter(&buf)
-	if _, err = zipper.Write(payload); err != nil {
-		return "", err
-	}
-	if err = zipper.Close(); err != nil {
-		return "", err
-	}
-
-	req, err := http.NewRequest(
-		http.MethodPost,
-		fmt.Sprintf("%s/api/v1/pastes.json", conf.BaseURL),
-		bytes.NewReader(buf.Bytes()),
-	)
-	if err != nil {
-		return "", err
-	}
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Set("Content-Encoding", "gzip")
-
-	res, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode > 299 {
-		return "", fmt.Errorf("failed to make request: %s", res.Status)
-	}
-
-	resData, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return "", err
-	}
-
-	err = json.Unmarshal(resData, data)
-	return data.Paste.UUID, err
 }
