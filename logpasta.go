@@ -35,17 +35,34 @@ func main() {
 
 	// make request
 	var output string
-	pasteURL, err := saveLog(conf, content)
+	paste, err := saveLog(conf, content)
 	if err != nil {
 		conf.Silent = false
 		output = fmt.Sprintf("Failed to save log: %s", err.Error())
 	} else {
+		pasteURL := fmt.Sprintf("%s/paste/%s", conf.BaseURL, paste.UUID)
+
 		output = fmt.Sprintf("Log saved successfully:\n%s", pasteURL)
 
-		err = clipboard.Copy(pasteURL)
-		if err != nil {
-			output += fmt.Sprintf("\nFailed to copy URL to clipboard: %s", err.Error())
+		if conf.Copy {
+			err = clipboard.Copy(pasteURL)
+			if err != nil {
+				output += fmt.Sprintf("\n(failed to copy to clipboard)")
+				if !conf.Silent {
+					output += fmt.Sprintf("\nError: %s", err.Error())
+				}
+			} else {
+				output += " (copied to clipboard)"
+			}
 		}
+
+		if paste.DeleteKey != nil {
+			output += fmt.Sprintf(
+				"\nYou can delete it early by visiting:\n%s/delete/%s/%s",
+				conf.BaseURL, paste.UUID, *paste.DeleteKey,
+			)
+		}
+
 	}
 
 	if !conf.Silent {
