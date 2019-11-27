@@ -11,7 +11,7 @@ import (
 	"github.com/ripexz/logpasta/clipboard"
 )
 
-var version = "v0.2.1"
+var version = "v0.3.1"
 
 func main() {
 	initLogger()
