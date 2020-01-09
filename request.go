@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -43,7 +44,10 @@ func saveLog(conf *Config, content string) (*Paste, error) {
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Set("Content-Encoding", "gzip")
-	req.Header.Set("User-Agent", fmt.Sprintf("Logpasta CLI %s", version))
+	req.Header.Set("User-Agent", fmt.Sprintf(
+		"Logpasta-CLI/%s",
+		strings.Replace(version, "v", "", -1),
+	))
 
 	res, err := client.Do(req)
 	if err != nil {
