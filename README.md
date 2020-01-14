@@ -4,6 +4,7 @@ Simple CLI for [Logpasta](https://www.logpasta.com), just run `your_command | lo
 
 ### Installation
 
+- Via Homebrew: `brew tap ripexz/tap && brew install logpasta`
 - Via Go: `go get github.com/ripexz/logpasta`
 - [Download binary](https://github.com/ripexz/logpasta/releases) and put it in your `$PATH`
 
