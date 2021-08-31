@@ -47,7 +47,7 @@ func main() {
 		if conf.Copy {
 			err = clipboard.Copy(pasteURL)
 			if err != nil {
-				output += fmt.Sprintf("\n(failed to copy to clipboard)")
+				output += "\n(failed to copy to clipboard)"
 				if !conf.Silent {
 					output += fmt.Sprintf("\nError: %s", err.Error())
 				}
