@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"strings"
@@ -11,7 +11,7 @@ import (
 	"github.com/ripexz/logpasta/clipboard"
 )
 
-var version = "v0.3.3"
+var version = "v0.3.4"
 
 func main() {
 	initLogger()
@@ -22,7 +22,7 @@ func main() {
 	fi, _ := os.Stdin.Stat()
 	if (fi.Mode() & os.ModeCharDevice) == 0 {
 		// piped
-		bytes, _ := ioutil.ReadAll(os.Stdin)
+		bytes, _ := io.ReadAll(os.Stdin)
 		content = string(bytes)
 	} else {
 		content = strings.Join(flag.Args(), " ")
