@@ -5,7 +5,7 @@ import (
 	"compress/gzip"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -59,7 +59,7 @@ func saveLog(conf *Config, content string) (*Paste, error) {
 		return nil, fmt.Errorf("failed to make request: %s", res.Status)
 	}
 
-	resData, err := ioutil.ReadAll(res.Body)
+	resData, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
